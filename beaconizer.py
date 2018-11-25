@@ -1,40 +1,32 @@
 #!/usr/bin/env python
+# coding=utf-8
 
 # Todo:
 #
-# Allow options to be passed in
-# Proper error handling
-# better output for parsing
 # Proper threading
 # Tweak timings with testing against different clients
+
+__description__ = "beaconizer"
+__author__ = "Mike Cromwell"
+__version__ = "1.0.0"
+__date__ = "2018/11/22"
 
 
 import threading
 import time
 import sys
 
+from argparse import ArgumentParser, FileType
 from scapy.all import *
-
-__NAME__ = """
- ______   _______  _______  _______  _______  _       _________ _______  _______  _______ 
-(  ___ \ (  ____ \(  ___  )(  ____ \(  ___  )( (    /|\__   __// ___   )(  ____ \(  ____ )
-| (   ) )| (    \/| (   ) || (    \/| (   ) ||  \  ( |   ) (   \/   )  || (    \/| (    )|
-| (__/ / | (__    | (___) || |      | |   | ||   \ | |   | |       /   )| (__    | (____)|
-|  __ (  |  __)   |  ___  || |      | |   | || (\ \) |   | |      /   / |  __)   |     __)
-| (  \ \ | (      | (   ) || |      | |   | || | \   |   | |     /   /  | (      | (\ (   
-| )___) )| (____/\| )   ( || (____/\| (___) || )  \  |___) (___ /   (_/\| (____/\| ) \ \__
-|/ \___/ (_______/|/     \|(_______/(_______)|/    )_)\_______/(_______/(_______/|/   \__/
-                                                                                         """ 
 
 # globals
 probes = set()
 ssids = []
-# todo: make this option
-iface = 'wlan0mon'
+args = {}
 
-# scapy setup
-conf.verb = False
-conf.iface = iface
+# defaults
+IFACE_DEFAULT = 'wlan0mon'
+CHANNEL_DEFAULT = 11
 
 
 def sniff_probe(pkt):
@@ -43,11 +35,12 @@ def sniff_probe(pkt):
     if len(name) > 0 and not name in probes:
       probes.add(name)
       mac_src=pkt[Dot11].addr2
-      print "[+] new probe '%s' src: %s" % (name, mac_src)
-
+      escaped_name=name.replace("'","''")      
+      print >> args.outfile, "'%s', %s" % (escaped_name, mac_src)
+      
 
 def sniff_probes():
-  sniff(prn=sniff_probe, store=False)
+  sniff(prn=sniff_probe, filter="wlan type mgt subtype probe-req", store=False)
 
 
 def send_beacons():
@@ -66,13 +59,15 @@ def send_beacons():
    
 
 def main():
-  try:
-    if len(sys.argv) < 2:
-      sys.exit("usage: %s <ssids>" % sys.argv[0])
+  
+  # scapy setup
+  conf.verb = False
+  conf.iface = args.iface
 
-    with open(sys.argv[1], "r") as ssid_file:
-     for ssid in ssid_file:
-       ssids.append(ssid.rstrip('\n'))
+  try:
+    
+    for ssid in args.ssids:
+      ssids.append(ssid.rstrip('\n'))
 
     t_probes=threading.Thread(target=sniff_probes)
     t_probes.daemon = True
@@ -84,4 +79,17 @@ def main():
 
 
 if __name__ == "__main__":
+  if "linux" not in sys.platform:
+    sys.exit("[!] only linux supported")
+
+  if os.geteuid() != 0:
+    sys.exit("[!] must be ran with root privileges")
+
+  parser = ArgumentParser()
+  parser.add_argument("ssids", type=FileType("r"), help="file with list of SSIDs to use, use - for STDIN", default=sys.stdin)
+  parser.add_argument("-i", "--iface", help="wifi iface to use", default=IFACE_DEFAULT)
+  parser.add_argument("-c", "--channel", help="channel to use", default=CHANNEL_DEFAULT)
+  parser.add_argument("-o", "--outfile", type=FileType("w"), help="file to write output to, uses STDOUT by default", default=sys.stdout) 
+
+  args = parser.parse_args()          
   main()
