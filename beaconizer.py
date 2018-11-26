@@ -18,6 +18,8 @@ import sys
 
 from argparse import ArgumentParser, FileType
 from scapy.all import *
+from wifi import WifiInterface
+
 
 # globals
 probes = set()
@@ -25,7 +27,7 @@ ssids = []
 args = {}
 
 # defaults
-IFACE_DEFAULT = 'wlan0mon'
+IFACE_DEFAULT = 'wlan0'
 CHANNEL_DEFAULT = 11
 
 
@@ -64,6 +66,11 @@ def main():
   conf.verb = False
   conf.iface = args.iface
 
+  # wifi setup
+  wifi_iface = WifiInterface(args.iface)
+  wifi_iface.set_monitor()
+  wifi_iface.set_channel(args.channel)
+
   try:
     
     for ssid in args.ssids:
@@ -75,8 +82,10 @@ def main():
     send_beacons()
 
   except KeyboardInterrupt:
-    print "[!] CTRL-C pressed, exiting"
-
+    print "[!] CTRL-C pressed, exiting!"
+  finally:
+    # set back
+    wifi_iface.set_managed()
 
 if __name__ == "__main__":
   if "linux" not in sys.platform:
