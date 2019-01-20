@@ -26,5 +26,6 @@ optional arguments:
                         file to write output to, uses STDOUT by default
 ```
 
+# Python3
 
-
+I have created a separate python3 branch with changes to make it compatible
