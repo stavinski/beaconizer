@@ -62,7 +62,7 @@ def send_beacons():
 
       frame = RadioTap()/dot11/beacon/essid
       sendp(frame)
-      time.sleep(1)
+    time.sleep(1)
    
 
 def main():
