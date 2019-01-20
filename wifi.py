@@ -37,3 +37,4 @@ class WifiInterface:
         subprocess.check_call("ip link set %s down" % self.iface, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         subprocess.check_call("iw dev %s set type %s" % (self.iface, mode), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         subprocess.check_call("ip link set %s up" % self.iface, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
