@@ -8,7 +8,7 @@
 __description__ = "beaconizer"
 __author__ = "Mike Cromwell"
 __version__ = "1.0.0"
-__date__ = "2018/11/22"
+__date__ = "2019/01/20"
 
 
 import time
