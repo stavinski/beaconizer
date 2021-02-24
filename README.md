@@ -2,7 +2,7 @@
 
 Author: Mike Cromwell
 
-A tool written in python that sends multiple wifi beacon frames in order to try and elicit a response from a
+A tool written in python3 that sends multiple wifi beacon frames in order to try and elicit a response from a
 wifi client, assuming they already have the SSID in the list of remembered access points.
 
 ## Gathering SSIDs
@@ -13,7 +13,7 @@ wifi client, assuming they already have the SSID in the list of remembered acces
 ## Usage
 
 ```sh
-usage: beaconizer.py [-h] [-i IFACE] [-c CHANNEL] [-o OUTFILE] ssids
+usage: beaconizer.py [-h] [-i IFACE] [-c CHANNEL] [-o OUTFILE] [-v] ssids
 
 positional arguments:
   ssids                 file with list of SSIDs to use, use - for STDIN
@@ -26,8 +26,6 @@ optional arguments:
                         channel to use
   -o OUTFILE, --outfile OUTFILE
                         file to write output to, uses STDOUT by default
+  -v, --verbose         Enable verbose logging to STDERR
+
 ```
-
-# Python3
-
-I have created a separate python3 branch with changes to make it compatible
