@@ -1,14 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # coding=utf-8
 
-# Todo:
-#
-# Tweak timings with testing against different clients
 
 __description__ = "beaconizer"
 __author__ = "Mike Cromwell"
-__version__ = "1.0.0"
-__date__ = "2019/01/20"
+__version__ = "2.0.0"
+__date__ = "2021/02/24"
 
 
 import time
@@ -39,18 +36,19 @@ class ProbeSniffingThread(Thread):
     
     def _packet_filter(self, pkt):
       if pkt.haslayer(Dot11ProbeReq):
-        name = pkt[Dot11ProbeReq].info
+        name = pkt[Dot11ProbeReq].info.decode()
         if len(name) > 0 and not name in self._probes:
           self._probes.add(name)
           mac_src = pkt[Dot11].addr2
           escaped_name = name.replace("'","''")      
-          print >> args.outfile, "'%s', %s" % (escaped_name, mac_src)
+          print("'%s', %s" % (escaped_name, mac_src), file=args.outfile)
         
     def run(self):
         sniff(prn=self._packet_filter, filter="wlan type mgt subtype probe-req", store=False)
                 
 
 def send_beacons():
+  global ssids
 
   while True:
     for ssid in ssids:
@@ -62,10 +60,15 @@ def send_beacons():
 
       frame = RadioTap()/dot11/beacon/essid
       sendp(frame)
-    time.sleep(1)
+
+      if args.verbose:
+          print("[+] Sending {}".format(ssid), file=sys.stderr)
+
+      time.sleep(1)
    
 
 def main():
+  global ssids
   
   # scapy setup
   conf.verb = False
@@ -84,10 +87,11 @@ def main():
     send_beacons()
 
   except KeyboardInterrupt:
-    print "[!] CTRL-C pressed, exiting!"
+    print("[!] CTRL-C pressed, exiting!")
   finally:
     # set back
     wifi_iface.set_managed()
+
 
 if __name__ == "__main__":
   if "linux" not in sys.platform:
@@ -101,6 +105,7 @@ if __name__ == "__main__":
   parser.add_argument("-i", "--iface", help="wifi iface to use", default=IFACE_DEFAULT)
   parser.add_argument("-c", "--channel", help="channel to use", default=CHANNEL_DEFAULT)
   parser.add_argument("-o", "--outfile", type=FileType("w"), help="file to write output to, uses STDOUT by default", default=sys.stdout) 
+  parser.add_argument("-v", "--verbose", help="Enable verbose logging to STDERR", action="store_true") 
 
   args = parser.parse_args()          
   main()

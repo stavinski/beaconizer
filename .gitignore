@@ -108,3 +108,6 @@ ssids.txt
 
 # pycharm
 .idea
+
+# pipenv 
+Pipfile.lock
