@@ -1,6 +1,6 @@
 # Beaconizer
 
-Author: Mike Cromwell
+Author: Mike Nicholls
 
 A tool written in python3 that sends multiple wifi beacon frames in order to try and elicit a response from a
 wifi client, assuming they already have the SSID in the list of remembered access points.

@@ -3,7 +3,7 @@
 
 
 __description__ = "beaconizer"
-__author__ = "Mike Cromwell"
+__author__ = "Mike Nicholls"
 __version__ = "2.0.0"
 __date__ = "2021/02/24"
 
@@ -64,7 +64,7 @@ def send_beacons():
       if args.verbose:
           print("[+] Sending {}".format(ssid), file=sys.stderr)
 
-      time.sleep(1)
+#      time.sleep(1)
    
 
 def main():
@@ -88,9 +88,9 @@ def main():
 
   except KeyboardInterrupt:
     print("[!] CTRL-C pressed, exiting!")
-  finally:
+  #finally:
     # set back
-    wifi_iface.set_managed()
+    #wifi_iface.set_managed()
 
 
 if __name__ == "__main__":
